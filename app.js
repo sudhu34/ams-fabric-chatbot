@@ -357,8 +357,14 @@ function formatMessageText(text) {
 }
 
 function scrollToBottom() {
-    if (!state.userHasScrolled) {
-        elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+    // Scroll to the last user message so the question stays visible at top
+    const container = elements.messagesContainer;
+    const userMessages = container.querySelectorAll('.message.user');
+    if (userMessages.length > 0) {
+        const lastUserMsg = userMessages[userMessages.length - 1];
+        lastUserMsg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        container.scrollTop = container.scrollHeight;
     }
 }
 
