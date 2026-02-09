@@ -173,18 +173,50 @@ function renderConversations() {
         
         return `
             <div class="conversation-item ${isActive ? 'active' : ''}" data-id="${conv.id}">
-                <div class="conversation-title">${escapeHtml(conv.title)}</div>
-                <div class="conversation-meta">${date}</div>
+                <div class="conv-item-content">
+                    <div class="conversation-title">${escapeHtml(conv.title)}</div>
+                    <div class="conversation-meta">${date}</div>
+                </div>
+                <button class="conv-delete-btn" data-id="${conv.id}" title="Delete chat">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                </button>
             </div>
         `;
     }).join('');
     
     // Attach click handlers
     document.querySelectorAll('.conversation-item').forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.conv-delete-btn')) return;
             switchConversation(item.dataset.id);
         });
     });
+    
+    // Attach delete handlers
+    document.querySelectorAll('.conv-delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteConversation(btn.dataset.id);
+        });
+    });
+}
+
+function deleteConversation(id) {
+    state.conversations = state.conversations.filter(c => c.id !== id);
+    
+    if (state.currentConversationId === id) {
+        state.currentConversationId = state.conversations.length > 0 ? state.conversations[0].id : null;
+        if (state.currentConversationId) {
+            switchConversation(state.currentConversationId);
+        } else {
+            renderMessages();
+        }
+    }
+    
+    saveState();
+    renderConversations();
 }
 
 function handleNewChat() {
@@ -250,9 +282,13 @@ function renderMessages() {
     const messagesHTML = conversation.messages.map(msg => {
         const time = formatTime(new Date(msg.timestamp));
         
+        const userAvatar = `<div class="msg-avatar user-avatar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
+        const botAvatar = `<div class="msg-avatar bot-avatar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg></div>`;
+
         if (msg.role === 'thinking') {
             return `
                 <div class="message thinking" data-id="${msg.id}">
+                    ${botAvatar}
                     <div class="message-bubble">
                         <div class="message-text">Thinking...</div>
                     </div>
@@ -263,6 +299,7 @@ function renderMessages() {
         if (msg.role === 'error') {
             return `
                 <div class="message bot error" data-id="${msg.id}">
+                    ${botAvatar}
                     <div class="message-bubble">
                         <div class="message-text">${escapeHtml(msg.text)}</div>
                         <button class="retry-btn" onclick="handleRetry()">Retry</button>
@@ -273,9 +310,11 @@ function renderMessages() {
         }
         
         const formattedText = formatMessageText(msg.text);
+        const avatar = msg.role === 'user' ? userAvatar : botAvatar;
         
         return `
             <div class="message ${msg.role}" data-id="${msg.id}">
+                ${avatar}
                 <div class="message-bubble">
                     <div class="message-text">${formattedText}</div>
                     <span class="message-timestamp">${time}</span>

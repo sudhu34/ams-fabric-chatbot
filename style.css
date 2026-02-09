@@ -298,6 +298,17 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
+.conversation-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.conv-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
 .conversation-title {
     font-size: 0.8rem;
     font-weight: 500;
@@ -311,6 +322,31 @@ body {
     font-size: 0.7rem;
     color: var(--text-tertiary);
     margin-top: 1px;
+}
+
+.conv-delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.conversation-item:hover .conv-delete-btn {
+    opacity: 1;
+}
+
+.conv-delete-btn:hover {
+    background: #fee2e2;
+    color: #dc2626;
 }
 
 .sidebar-footer {
@@ -543,6 +579,8 @@ body {
 
 .message {
     display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
     margin-bottom: 1.25rem;
     animation: fadeIn 0.3s ease;
 }
@@ -558,6 +596,29 @@ body {
 
 .message.bot {
     justify-content: flex-start;
+}
+
+/* Message Avatars */
+.msg-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.user-avatar-icon {
+    background: #0d9488;
+    color: white;
+    order: 2;
+}
+
+.bot-avatar-icon {
+    background: #e2e8f0;
+    color: #475569;
 }
 
 .message-bubble {
