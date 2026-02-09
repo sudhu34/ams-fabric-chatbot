@@ -126,15 +126,11 @@ body {
     gap: 0.75rem;
 }
 
-.brand-logo svg {
+.brand-logo-img {
+    height: 30px;
+    width: auto;
     display: block;
-}
-
-.brand-name {
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: white;
+    filter: brightness(0) invert(1);
 }
 
 .top-nav-center {
