@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMS Fabric Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Viewport Warning for Small Screens -->
+    <div id="viewport-warning" class="viewport-warning">
+        <div class="warning-content">
+            <h2>⚠️ Screen Too Small</h2>
+            <p>This application requires a minimum width of 1024px for optimal experience.</p>
+            <p>Please use a desktop or larger device.</p>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app" class="app-container">
+        <div class="desktop-window">
+            
+            <!-- Left Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h1 class="app-title">AMS Fabric</h1>
+                    <p class="app-subtitle">Intelligent Assistant</p>
+                </div>
+
+                <button id="new-chat-btn" class="new-chat-btn">
+                    <span class="btn-icon">+</span>
+                    New Chat
+                </button>
+
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        class="search-input" 
+                        placeholder="Search conversations... (Ctrl+K)"
+                    >
+                </div>
+
+                <div id="conversation-list" class="conversation-list">
+                    <!-- Conversations will be rendered here -->
+                </div>
+
+                <div class="sidebar-footer">
+                    <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+                        <span class="theme-icon">🌙</span>
+                        <span class="theme-label">Dark Mode</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Chat Panel -->
+            <main class="main-panel">
+                <header class="chat-header">
+                    <h2 id="chat-title" class="chat-title">Select or start a conversation</h2>
+                    <div id="loading-indicator" class="loading-indicator">
+                        <div class="spinner"></div>
+                        <span>Thinking...</span>
+                    </div>
+                </header>
+
+                <div id="messages-container" class="messages-container">
+                    <div class="empty-state">
+                        <div class="empty-icon">💬</div>
+                        <h3>Welcome to AMS Fabric</h3>
+                        <p>Start a new conversation or select one from the sidebar</p>
+                    </div>
+                </div>
+
+                <div class="composer-area">
+                    <div class="composer-container">
+                        <textarea 
+                            id="message-input" 
+                            class="message-input" 
+                            placeholder="Type your message... (Shift+Enter for new line, Esc to clear)"
+                            rows="1"
+                        ></textarea>
+                        <div class="composer-actions">
+                            <button id="clear-btn" class="action-btn clear-btn" title="Clear input (Esc)">
+                                Clear
+                            </button>
+                            <button id="send-btn" class="action-btn send-btn" title="Send message (Enter)">
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
