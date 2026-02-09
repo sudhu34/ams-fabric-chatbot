@@ -398,7 +398,7 @@ async function handleSendMessage() {
     setLoadingState(true);
     
     try {
-        const response = await callApi(text);
+        const response = await callApiWithRetry(text, 2);
         
         // Remove thinking indicator
         removeMessage(thinkingMsg.id);
@@ -411,10 +411,26 @@ async function handleSendMessage() {
         removeMessage(thinkingMsg.id);
         
         // Add error message
-        addMessage('error', `Error: ${error.message}`);
+        addMessage('error', error.message);
     } finally {
         setLoadingState(false);
     }
+}
+
+async function callApiWithRetry(question, maxRetries) {
+    let lastError;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            return await callApi(question);
+        } catch (error) {
+            lastError = error;
+            if (attempt < maxRetries) {
+                // Wait before retrying (1s, then 2s)
+                await new Promise(resolve => setTimeout(resolve, (attempt + 1) * 1000));
+            }
+        }
+    }
+    throw lastError;
 }
 
 async function callApi(question) {
@@ -431,17 +447,16 @@ async function callApi(question) {
         
         if (!response.ok) {
             const errorText = await response.text();
-            let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
             
-            try {
-                const errorJson = JSON.parse(errorText);
-                if (errorJson.error) errorMessage += ` - ${errorJson.error}`;
-                if (errorJson.message) errorMessage += ` - ${errorJson.message}`;
-            } catch (e) {
-                if (errorText && errorText.length < 200) errorMessage += ` - ${errorText}`;
+            if (response.status >= 500) {
+                throw new Error('The service is temporarily unavailable. Please try again in a moment.');
+            } else if (response.status === 429) {
+                throw new Error('Too many requests. Please wait a moment and try again.');
+            } else if (response.status === 401 || response.status === 403) {
+                throw new Error('Access denied. Please check your permissions.');
+            } else {
+                throw new Error('Something went wrong while processing your request. Please try again.');
             }
-            
-            throw new Error(errorMessage);
         }
         
         const responseText = await response.text();
@@ -475,7 +490,12 @@ async function callApi(question) {
         }
     } catch (error) {
         if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
-            throw new Error('Network error: Unable to reach the API. Please check your connection.');
+            throw new Error('Unable to connect to the service. Please check your internet connection and try again.');
+        }
+        // Clean up technical error messages
+        const msg = error.message || '';
+        if (msg.includes('JSON') || msg.includes('parse') || msg.includes('Unexpected')) {
+            throw new Error('The response could not be processed. Retrying may help — please try again.');
         }
         throw error;
     }
