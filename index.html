@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMS Fabric Chat</title>
+    <title>AMS Fabric Assistant</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,27 +18,64 @@
 
     <!-- Main Application Container -->
     <div id="app" class="app-container">
-        <div class="desktop-window">
-            
+
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="top-nav-left">
+                <div class="brand-logo">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <rect width="28" height="28" rx="6" fill="white" fill-opacity="0.2"/>
+                        <path d="M7 8h14M7 14h14M7 20h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="brand-name">AMS Fabric</span>
+            </div>
+            <div class="top-nav-center">
+                <svg class="nav-app-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <span class="nav-app-title">AMS Fabric Assistant</span>
+            </div>
+            <div class="top-nav-right">
+                <span class="welcome-text">Welcome, <strong id="user-display-name">User</strong></span>
+                <div class="user-avatar" id="user-avatar">U</div>
+            </div>
+        </header>
+
+        <div class="app-body">
             <!-- Left Sidebar -->
             <aside class="sidebar">
-                <div class="sidebar-header">
-                    <h1 class="app-title">AMS Fabric</h1>
-                    <p class="app-subtitle">Intelligent Assistant</p>
-                </div>
-
                 <button id="new-chat-btn" class="new-chat-btn">
-                    <span class="btn-icon">+</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
                     New Chat
                 </button>
 
-                <div class="search-container">
-                    <input 
-                        type="text" 
-                        id="search-input" 
-                        class="search-input" 
-                        placeholder="Search conversations... (Ctrl+K)"
-                    >
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item" id="nav-tasks">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                        </svg>
+                        Tasks
+                    </a>
+                    <a href="#" class="nav-item" id="nav-smart-assist">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        Smart Assist
+                    </a>
+                </nav>
+
+                <div class="sidebar-section-header" id="all-chats-header">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    All Chats
                 </div>
 
                 <div id="conversation-list" class="conversation-list">
@@ -46,51 +83,151 @@
                 </div>
 
                 <div class="sidebar-footer">
-                    <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
-                        <span class="theme-icon">🌙</span>
-                        <span class="theme-label">Dark Mode</span>
-                    </button>
+                    <a href="#" class="nav-item footer-item" id="nav-analytics">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="#" class="nav-item footer-item" id="nav-settings">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                        Settings
+                    </a>
                 </div>
             </aside>
 
-            <!-- Main Chat Panel -->
+            <!-- Main Content Panel -->
             <main class="main-panel">
-                <header class="chat-header">
-                    <h2 id="chat-title" class="chat-title">Select or start a conversation</h2>
-                    <div id="loading-indicator" class="loading-indicator">
-                        <div class="spinner"></div>
-                        <span>Thinking...</span>
-                    </div>
-                </header>
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="loading-indicator">
+                    <div class="spinner"></div>
+                    <span>Processing...</span>
+                </div>
 
+                <!-- Messages Container / Welcome Screen -->
                 <div id="messages-container" class="messages-container">
-                    <div class="empty-state">
-                        <div class="empty-icon">💬</div>
-                        <h3>Welcome to AMS Fabric</h3>
-                        <p>Start a new conversation or select one from the sidebar</p>
+                    <div class="welcome-screen" id="welcome-screen">
+                        <p class="welcome-subtitle">
+                            Streamline your operations with AI-powered assistance. Get instant insights, updates, and
+                            reports for all your management needs. Select a tile, edit details and click send.
+                        </p>
+                        <div class="prompt-tiles-grid">
+                            <!-- Row 1 -->
+                            <div class="prompt-tile" data-prompt="What can you help me with?">
+                                <div class="tile-icon blue">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                </div>
+                                <div class="tile-content">
+                                    <span class="tile-category">Quick Start</span>
+                                    <span class="tile-text">What can you help me with?</span>
+                                </div>
+                            </div>
+                            <div class="prompt-tile" data-prompt="Show me resource details for workspace Alpha">
+                                <div class="tile-icon green">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                                    </svg>
+                                </div>
+                                <div class="tile-content">
+                                    <span class="tile-category">Resource Overview</span>
+                                    <span class="tile-text">Show me resource details for workspace Alpha</span>
+                                </div>
+                            </div>
+                            <!-- Row 2 -->
+                            <div class="prompt-tile" data-prompt="Analyze capacity allocation and usage trends across all teams for the upcoming quarter">
+                                <div class="tile-icon purple">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                                    </svg>
+                                </div>
+                                <div class="tile-content">
+                                    <span class="tile-category">Capacity Planning</span>
+                                    <span class="tile-text">Analyze capacity allocation and usage trends across all teams for the upcoming quarter</span>
+                                </div>
+                            </div>
+                            <div class="prompt-tile" data-prompt="Generate a summary chart of resource utilization by department for this month">
+                                <div class="tile-icon teal">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                                    </svg>
+                                </div>
+                                <div class="tile-content">
+                                    <span class="tile-category">Data Insights</span>
+                                    <span class="tile-text">Generate a summary chart of resource utilization by department for this month</span>
+                                </div>
+                            </div>
+                            <!-- Row 3 -->
+                            <div class="prompt-tile" data-prompt="Provide cost breakdown details for Project Summit in Q4 2025">
+                                <div class="tile-icon amber">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                    </svg>
+                                </div>
+                                <div class="tile-content">
+                                    <span class="tile-category">Cost Analysis</span>
+                                    <span class="tile-text">Provide cost breakdown details for Project Summit in Q4 2025</span>
+                                </div>
+                            </div>
+                            <div class="prompt-tile" data-prompt="Show me performance metrics for team Delta in the East region for last month">
+                                <div class="tile-icon red">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+                                    </svg>
+                                </div>
+                                <div class="tile-content">
+                                    <span class="tile-category">Performance Metrics</span>
+                                    <span class="tile-text">Show me performance metrics for team Delta in the East region for last month</span>
+                                </div>
+                            </div>
+                            <!-- Row 4 -->
+                            <div class="prompt-tile" data-prompt="Find scheduling conflicts with 3 or fewer available slots in the Engineering team for Feb 2026">
+                                <div class="tile-icon indigo">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                </div>
+                                <div class="tile-content">
+                                    <span class="tile-category">Scheduling</span>
+                                    <span class="tile-text">Find scheduling conflicts with 3 or fewer available slots in the Engineering team for Feb 2026</span>
+                                </div>
+                            </div>
+                            <div class="prompt-tile" data-prompt="Review compliance status for workspace Beta for 2026">
+                                <div class="tile-icon slate">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    </svg>
+                                </div>
+                                <div class="tile-content">
+                                    <span class="tile-category">Compliance Check</span>
+                                    <span class="tile-text">Review compliance status for workspace Beta for 2026</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Chat Input Bar -->
                 <div class="composer-area">
                     <div class="composer-container">
                         <textarea 
                             id="message-input" 
                             class="message-input" 
-                            placeholder="Type your message... (Shift+Enter for new line, Esc to clear)"
+                            placeholder="Ask me anything (use @ to search resources)"
                             rows="1"
                         ></textarea>
-                        <div class="composer-actions">
-                            <button id="clear-btn" class="action-btn clear-btn" title="Clear input (Esc)">
-                                Clear
-                            </button>
-                            <button id="send-btn" class="action-btn send-btn" title="Send message (Enter)">
-                                Send
-                            </button>
-                        </div>
+                        <button id="send-btn" class="send-btn" title="Send message (Enter)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </main>
-
         </div>
     </div>
 

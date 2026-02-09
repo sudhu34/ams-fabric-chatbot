@@ -3,7 +3,6 @@
 // ========================
 
 // Using Cloudflare Worker for CORS handling
-// Your custom worker handles the API call and adds CORS headers
 const API_URL = "https://ams-fabric-proxy.sudhakarn-in.workers.dev";
 
 // ========================
@@ -13,7 +12,6 @@ const API_URL = "https://ams-fabric-proxy.sudhakarn-in.workers.dev";
 let state = {
     conversations: [],
     currentConversationId: null,
-    theme: 'light',
     isRequestInProgress: false,
     userHasScrolled: false,
     lastUserMessage: null
@@ -28,14 +26,9 @@ const elements = {
     messagesContainer: document.getElementById('messages-container'),
     messageInput: document.getElementById('message-input'),
     sendBtn: document.getElementById('send-btn'),
-    clearBtn: document.getElementById('clear-btn'),
     newChatBtn: document.getElementById('new-chat-btn'),
-    searchInput: document.getElementById('search-input'),
-    chatTitle: document.getElementById('chat-title'),
     loadingIndicator: document.getElementById('loading-indicator'),
-    themeToggle: document.getElementById('theme-toggle'),
-    themeIcon: document.querySelector('.theme-icon'),
-    themeLabel: document.querySelector('.theme-label')
+    welcomeScreen: document.getElementById('welcome-screen')
 };
 
 // ========================
@@ -44,7 +37,6 @@ const elements = {
 
 function init() {
     loadState();
-    applyTheme();
     renderConversations();
     
     if (state.currentConversationId) {
@@ -63,19 +55,8 @@ function attachEventListeners() {
     // Send message
     elements.sendBtn.addEventListener('click', handleSendMessage);
     
-    // Clear input
-    elements.clearBtn.addEventListener('click', clearInput);
-    
     // New chat
     elements.newChatBtn.addEventListener('click', handleNewChat);
-    
-    // Search conversations
-    elements.searchInput.addEventListener('input', (e) => {
-        filterConversations(e.target.value);
-    });
-    
-    // Theme toggle
-    elements.themeToggle.addEventListener('click', toggleTheme);
     
     // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboardShortcuts);
@@ -86,16 +67,21 @@ function attachEventListeners() {
     
     // Track user scrolling
     elements.messagesContainer.addEventListener('scroll', handleScroll);
+    
+    // Prompt tile clicks
+    document.querySelectorAll('.prompt-tile').forEach(tile => {
+        tile.addEventListener('click', () => {
+            const prompt = tile.getAttribute('data-prompt');
+            if (prompt) {
+                elements.messageInput.value = prompt;
+                elements.messageInput.focus();
+                autoResizeTextarea();
+            }
+        });
+    });
 }
 
 function handleKeyboardShortcuts(e) {
-    // Ctrl/Cmd + K: Focus search
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        elements.searchInput.focus();
-        elements.searchInput.select();
-    }
-    
     // Escape: Clear input
     if (e.key === 'Escape' && document.activeElement === elements.messageInput) {
         clearInput();
@@ -142,7 +128,6 @@ function switchConversation(id) {
     
     const conversation = getConversation(id);
     if (conversation) {
-        elements.chatTitle.textContent = conversation.title;
         renderMessages();
     }
     
@@ -170,13 +155,13 @@ function updateConversationTitle(conversation, firstMessage) {
     conversation.updatedAt = new Date().toISOString();
 }
 
-function renderConversations(filteredList = null) {
-    const conversationsToRender = filteredList || state.conversations;
+function renderConversations() {
+    const conversationsToRender = state.conversations;
     
     if (conversationsToRender.length === 0) {
         elements.conversationList.innerHTML = `
-            <div style="padding: 2rem 1rem; text-align: center; color: var(--text-tertiary); font-size: 0.875rem;">
-                ${filteredList ? 'No conversations found' : 'No conversations yet'}
+            <div style="padding: 1.5rem 0.75rem; text-align: center; color: var(--text-tertiary); font-size: 0.8rem;">
+                No conversations yet
             </div>
         `;
         return;
@@ -200,21 +185,6 @@ function renderConversations(filteredList = null) {
             switchConversation(item.dataset.id);
         });
     });
-}
-
-function filterConversations(query) {
-    if (!query.trim()) {
-        renderConversations();
-        return;
-    }
-    
-    const lowerQuery = query.toLowerCase();
-    const filtered = state.conversations.filter(conv => 
-        conv.title.toLowerCase().includes(lowerQuery) ||
-        conv.messages.some(msg => msg.text.toLowerCase().includes(lowerQuery))
-    );
-    
-    renderConversations(filtered);
 }
 
 function handleNewChat() {
@@ -267,17 +237,17 @@ function renderMessages() {
     const conversation = getCurrentConversation();
     
     if (!conversation || conversation.messages.length === 0) {
-        elements.messagesContainer.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">💬</div>
-                <h3>Start the conversation</h3>
-                <p>Type a message below to begin chatting</p>
-            </div>
-        `;
+        // Show welcome screen with tiles
+        showWelcomeScreen();
         return;
     }
     
-    elements.messagesContainer.innerHTML = conversation.messages.map(msg => {
+    // Hide welcome screen, show messages
+    hideWelcomeScreen();
+    
+    // Build messages HTML but preserve welcome screen element
+    const welcomeEl = document.getElementById('welcome-screen');
+    const messagesHTML = conversation.messages.map(msg => {
         const time = formatTime(new Date(msg.timestamp));
         
         if (msg.role === 'thinking') {
@@ -313,6 +283,21 @@ function renderMessages() {
             </div>
         `;
     }).join('');
+    
+    // Remove old message elements (keep welcome screen hidden)
+    const container = elements.messagesContainer;
+    Array.from(container.children).forEach(child => {
+        if (child.id !== 'welcome-screen') {
+            child.remove();
+        }
+    });
+    
+    // Insert messages HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = messagesHTML;
+    while (tempDiv.firstChild) {
+        container.appendChild(tempDiv.firstChild);
+    }
     
     scrollToBottom();
 }
@@ -494,24 +479,28 @@ function autoResizeTextarea() {
 }
 
 // ========================
-// Theme Management
+// Welcome Screen Management
 // ========================
 
-function toggleTheme() {
-    state.theme = state.theme === 'light' ? 'dark' : 'light';
-    applyTheme();
-    saveState();
+function showWelcomeScreen() {
+    // Remove any message elements
+    const container = elements.messagesContainer;
+    Array.from(container.children).forEach(child => {
+        if (child.id !== 'welcome-screen') {
+            child.remove();
+        }
+    });
+    
+    const welcomeScreen = document.getElementById('welcome-screen');
+    if (welcomeScreen) {
+        welcomeScreen.style.display = '';
+    }
 }
 
-function applyTheme() {
-    document.documentElement.setAttribute('data-theme', state.theme);
-    
-    if (state.theme === 'dark') {
-        elements.themeIcon.textContent = '☀️';
-        elements.themeLabel.textContent = 'Light Mode';
-    } else {
-        elements.themeIcon.textContent = '🌙';
-        elements.themeLabel.textContent = 'Dark Mode';
+function hideWelcomeScreen() {
+    const welcomeScreen = document.getElementById('welcome-screen');
+    if (welcomeScreen) {
+        welcomeScreen.style.display = 'none';
     }
 }
 
@@ -523,8 +512,7 @@ function saveState() {
     try {
         const dataToSave = {
             conversations: state.conversations,
-            currentConversationId: state.currentConversationId,
-            theme: state.theme
+            currentConversationId: state.currentConversationId
         };
         localStorage.setItem('ams-fabric-state', JSON.stringify(dataToSave));
     } catch (error) {
@@ -539,7 +527,6 @@ function loadState() {
             const data = JSON.parse(saved);
             state.conversations = data.conversations || [];
             state.currentConversationId = data.currentConversationId;
-            state.theme = data.theme || 'light';
         }
     } catch (error) {
         console.error('Failed to load state:', error);
